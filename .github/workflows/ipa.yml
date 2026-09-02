@@ -285,8 +285,7 @@ jobs:
         run: |
           cd YouMod
           echo "YOUMOD_VERSION=$(grep '^Version:' control | cut -d ' ' -f2)" >> $GITHUB_ENV
-          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/youmod.deb
+          echo "BISECT: YouMod build+injection skipped for this test run"
         
       - name: Build YouPiP
         if: ${{ inputs.youpip }}
