@@ -216,6 +216,7 @@ jobs:
           path: YouMod
 
       - name: Clone Open in YouTube (Safari Extension)
+        if: ${{ false }} # already bundled in the base IPA - skip to avoid duplicates
         run: |
           git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/BillyCurtis/OpenYouTubeSafariExtension.git
           cd OpenYouTubeSafariExtension
@@ -236,6 +237,7 @@ jobs:
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
 
       - name: Clone YouGroupSettings
+        if: ${{ false }} # already bundled in the base IPA - skip to avoid duplicates
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouGroupSettings.git
            
       - name: Clone YTVideoOverlay
@@ -310,6 +312,7 @@ jobs:
           mv packages/*.deb ${{ github.workspace }}/ryd.deb
 
       - name: Build YouGroupSettings
+        if: ${{ false }} # already bundled in the base IPA - skip to avoid duplicates
         run: |
           cd YouGroupSettings
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
@@ -387,7 +390,7 @@ jobs:
           
       - name: Inject Tweaks Into IPA
         run: |
-          tweaks="OpenYouTubeSafariExtension.appex"
+          tweaks="" # base IPA already ships OpenYouTubeSafariExtension.appex - inject only missing debs
 
           for f in *.deb; do
             tweaks="$tweaks $f"
