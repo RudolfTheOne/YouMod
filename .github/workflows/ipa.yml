@@ -333,6 +333,7 @@ jobs:
           mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
 
       - name: Build UncappedAVPlayer
+        if: ${{ false }} # TEST C: UncappedAVPlayer injection skipped
         run: |
           cd UncappedAVPlayer
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless ARCHS=arm64
