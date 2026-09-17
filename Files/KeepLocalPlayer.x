@@ -12,16 +12,34 @@ static BOOL YMReturnNO(id self, SEL _cmd) {
 
 static void YMHookBoolGetter(SEL sel) {
     int count = objc_getClassList(NULL, 0);
+    if (count <= 0)
+        return;
     Class *classes = (Class *)malloc(sizeof(Class) * (unsigned)count);
     count = objc_getClassList(classes, count);
     for (int i = 0; i < count; i++) {
-        Method m = class_getInstanceMethod(classes[i], sel);
-        if (!m || method_getNumberOfArguments(m) != 2)
+        Class cls = classes[i];
+        if (!cls)
             continue;
-        char *type = method_copyReturnType(m);
-        if (type && type[0] == 'B')
-            method_setImplementation(m, (IMP)YMReturnNO);
-        free(type);
+        @try {
+            unsigned int mcount = 0;
+            Method *methods = class_copyMethodList(cls, &mcount);
+            for (unsigned int j = 0; j < mcount; j++) {
+                if (method_getNumberOfArguments(methods[j]) != 2)
+                    continue;
+                if (!sel_isEqual(method_getName(methods[j]), sel))
+                    continue;
+                char *type = method_copyReturnType(methods[j]);
+                BOOL isBool = (type && type[0] == 'B');
+                if (type)
+                    free(type);
+                if (isBool)
+                    method_setImplementation(methods[j], (IMP)YMReturnNO);
+                break;
+            }
+            if (methods)
+                free(methods);
+        }
+        @catch (NSException *e) {}
     }
     free(classes);
 }
@@ -105,7 +123,9 @@ static void YMHookBoolGetter(SEL sel) {
         %init(YTStatus);
     if (%c(MLAVPlayer))
         %init(MLP);
-    YMHookBoolGetter(@selector(outputRouteUsesAirPlay));
-    YMHookBoolGetter(@selector(isAirplayable));
-    YMHookBoolGetter(@selector(isExternalPlaybackAllowed));
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        YMHookBoolGetter(@selector(outputRouteUsesAirPlay));
+        YMHookBoolGetter(@selector(isAirplayable));
+        YMHookBoolGetter(@selector(isExternalPlaybackAllowed));
+    });
 }
