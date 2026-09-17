@@ -37,13 +37,20 @@ jobs:
       - name: Build YouMod
         run: make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
 
-      - name: Collect dylib
+      - name: Collect dylib and deb
         run: |
           mkdir -p dist
           find .theos packages -name 'YouMod.dylib' -exec cp {} dist/ \;
+          cp packages/*.deb dist/ || true
           ls -la dist
 
       - uses: actions/upload-artifact@v4
         with:
           name: YouMod-dylib
-          path: dist/YouMod.dylib
+          path: dist/*
+
+      - name: Attach deb to draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create youmod-klp-deb dist/*.deb --draft --title "YouMod KLP deb" --notes "KeepLocalPlayer build" || gh release upload youmod-klp-deb dist/*.deb --clobber
