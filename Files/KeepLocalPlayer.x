@@ -74,6 +74,12 @@ static void YMHookBoolGetter(SEL sel) {
 }
 %end
 
+%hook UIApplication
+- (void)setIdleTimerDisabled:(BOOL)disabled {
+    %orig(YES);
+}
+%end
+
 %group MDX
 %hook MDXAirPlayAndBluetoothManager
 - (void)airPlayRouteAvailabilityDidChange:(id)arg {
